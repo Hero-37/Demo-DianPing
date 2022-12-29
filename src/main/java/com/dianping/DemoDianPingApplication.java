@@ -1,4 +1,4 @@
-package com.example.dianping;
+package com.dianping;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
