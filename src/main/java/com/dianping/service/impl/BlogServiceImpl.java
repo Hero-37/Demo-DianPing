@@ -17,6 +17,8 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.util.List;
 
+import static com.dianping.utils.RedisConstants.BLOG_LIKED_KEY;
+
 @Service
 public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements IBlogService {
 
@@ -54,6 +56,33 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements IB
         // 3. 查询 blog 是否被点赞
         isBlogLiked(blog);
         return Result.ok(blog);
+    }
+
+    @Override
+    public Result likeBlog(Long id) {
+        // 1. 获取登录用户
+        Long userId = UserHolder.getUser().getId();
+        // 2. 判断当前登录用户是否已经点赞
+        String key = BLOG_LIKED_KEY + id;
+        Double score = stringRedisTemplate.opsForZSet().score(key, userId.toString());
+        if (score == null) {
+            // 3.如果未点赞，可以点赞
+            // 3.1.数据库点赞数 + 1
+            boolean isSuccess = update().setSql("liked = liked + 1").eq("id", id).update();
+            // 3.2.保存用户到Redis的set集合  zadd key value score
+            if (isSuccess) {
+                stringRedisTemplate.opsForZSet().add(key, userId.toString(), System.currentTimeMillis());
+            }
+        } else {
+            // 4.如果已点赞，取消点赞
+            // 4.1.数据库点赞数 -1
+            boolean isSuccess = update().setSql("liked = liked - 1").eq("id", id).update();
+            // 4.2.把用户从Redis的set集合移除
+            if (isSuccess) {
+                stringRedisTemplate.opsForZSet().remove(key, userId.toString());
+            }
+        }
+        return Result.ok();
     }
 
     private void isBlogLiked(Blog blog) {

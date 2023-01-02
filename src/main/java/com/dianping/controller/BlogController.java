@@ -13,6 +13,11 @@ public class BlogController {
     @Resource
     private IBlogService blogService;
 
+    @GetMapping("/like/{id}")
+    public Result likeBlog(@PathVariable("id") Long id) {
+        return blogService.likeBlog(id);
+    }
+
     @GetMapping("/hot")
     public Result queryHotBlog(@RequestParam(value = "current", defaultValue = "1") Integer current) {
         return blogService.queryHotBlog(current);
