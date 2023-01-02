@@ -44,7 +44,16 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements IB
 
     @Override
     public Result queryBlogById(Long id) {
-        return null;
+        // 1. 查询 blog
+        Blog blog = getById(id);
+        if (blog == null) {
+            return Result.fail("笔记不存在!");
+        }
+        // 2. 查询 blog 的主人
+        queryBlogUser(blog);
+        // 3. 查询 blog 是否被点赞
+        isBlogLiked(blog);
+        return Result.ok(blog);
     }
 
     private void isBlogLiked(Blog blog) {
