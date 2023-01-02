@@ -39,7 +39,7 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements IB
             this.queryBlogUser(blog);
             this.isBlogLiked(blog);
         });
-        return null;
+        return Result.ok(records);
     }
 
     @Override

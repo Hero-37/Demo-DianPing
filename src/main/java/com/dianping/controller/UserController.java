@@ -2,7 +2,9 @@ package com.dianping.controller;
 
 import com.dianping.dto.LoginFormDTO;
 import com.dianping.dto.Result;
+import com.dianping.dto.UserDTO;
 import com.dianping.service.IUserService;
+import com.dianping.utils.UserHolder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,5 +35,12 @@ public class UserController {
     @PostMapping("/login")
     public Result login(@RequestBody LoginFormDTO loginForm, HttpSession session) {
         return userService.login(loginForm, session);
+    }
+
+    @GetMapping("/me")
+    public Result me() {
+        // 获取当前登录的用户并返回
+        UserDTO user = UserHolder.getUser();
+        return Result.ok(user);
     }
 }
