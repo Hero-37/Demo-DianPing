@@ -2,10 +2,7 @@ package com.dianping.controller;
 
 import com.dianping.dto.Result;
 import com.dianping.service.IShopService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 
@@ -24,5 +21,21 @@ public class ShopController {
     @GetMapping("/{id}")
     public Result queryShopById(@PathVariable("id") Long id) {
         return shopService.queryById(id);
+    }
+
+    /**
+     * 根据商铺类型分页查询商铺信息
+     * @param typeId 商铺类型
+     * @param current 页码
+     * @return 商铺列表
+     */
+    @GetMapping("/of/type")
+    public Result queryShopByType(
+            @RequestParam("typeId") Integer typeId,
+            @RequestParam(value = "current", defaultValue = "1") Integer current,
+            @RequestParam(value = "x", required = false) Double x,
+            @RequestParam(value = "y", required = false) Double y
+    ) {
+        return shopService.queryShopByType(typeId, current, x, y);
     }
 }
