@@ -6,7 +6,7 @@ public class UserHolder {
 
     private static final ThreadLocal<UserDTO> tl = new ThreadLocal<>();
 
-    public static void saveUser(UserDTO user) {
+    public static void saveUser(UserDTO  user) {
         tl.set(user);
     }
 

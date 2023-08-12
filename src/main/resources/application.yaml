@@ -11,7 +11,7 @@ spring:
   redis:
     host: 127.0.0.1
     port: 6379
-    password:
+    password: 1608040043
     lettuce:
       pool:
         max-active: 10
@@ -19,12 +19,12 @@ spring:
         min-idle: 1
         time-between-eviction-runs: 10s
   jackson:
-    default-property-inclusion: non_null  # JSON?????????
+    default-property-inclusion: non_null  # JSON处理时忽略非空字段
 mybatis-plus:
-  type-aliases-package: com.dianping.entity  # ?????
+  type-aliases-package: com.dianping.entity  # 别名扫描包
 logging:
   level:
-    com.example: debug
+    com.dianping: debug
   pattern:
     dateformat: mm:ss.SSS
 
