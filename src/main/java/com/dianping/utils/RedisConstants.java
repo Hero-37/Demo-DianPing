@@ -9,7 +9,7 @@ public class RedisConstants {
 
     public static final Long LOGIN_USER_TTL = 30L;
 
-    public static final String CACHE_SHOP_KEY = "lock:shop:";
+    public static final String CACHE_SHOP_KEY = "cache:shop:";
 
     public static final String BLOG_LIKED_KEY = "blog:liked:";
 

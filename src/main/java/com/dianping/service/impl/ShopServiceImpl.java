@@ -1,6 +1,7 @@
 package com.dianping.service.impl;
 
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.dianping.dto.Result;
@@ -20,7 +21,6 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
 import static com.dianping.utils.RedisConstants.*;
 
@@ -35,12 +35,31 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements IS
 
     @Override
     public Result queryById(Long id) {
-        // 解决缓存穿透
-        Shop shop = cacheClient
-                .queryWithPassThrough(CACHE_SHOP_KEY, id, Shop.class, this::getById, CACHE_NULL_TTL, TimeUnit.MINUTES);
-        if (shop == null) {
-            return Result.fail("店铺不存在!");
+
+        String key = CACHE_SHOP_KEY + id;
+
+        // 1.从 redis 查询商铺缓存
+        String shopJson = stringRedisTemplate.opsForValue().get(key);
+
+        // 2.判断是否存在
+        if (StrUtil.isNotBlank(shopJson)) {
+            // 3.存在，直接返回
+            Shop shop = JSONUtil.toBean(shopJson, Shop.class);
+            return Result.ok(shop);
         }
+
+        // 4.不存在，根据 id 查询数据库
+        Shop shop = getById(id);
+        // 5.不存在，返回错误
+        if (shop == null) {
+            return Result.fail("店铺不存在！！！");
+        }
+        // 6.存在，写入redis
+        stringRedisTemplate.opsForValue().set(key, JSONUtil.toJsonStr(shop));
+        // 7. 返回
+        // 解决缓存穿透
+//        Shop shop = cacheClient
+//                .queryWithPassThrough(CACHE_SHOP_KEY, id, Shop.class, this::getById, CACHE_NULL_TTL, TimeUnit.MINUTES);
         // 返回
         return Result.ok(shop);
     }
