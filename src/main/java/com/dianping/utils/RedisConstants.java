@@ -17,4 +17,8 @@ public class RedisConstants {
 
     public static final String SHOP_GEO_KEY = "shop:geo:";
 
+    public static final String LOCK_SHOP_KEY = "lock:shop:";
+
+    public static final Long LOCK_SHOP_TTL = 10L;
+
 }
