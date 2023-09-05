@@ -11,7 +11,6 @@ import com.dianping.entity.Shop;
 import com.dianping.mapper.ShopMapper;
 import com.dianping.service.IShopService;
 import com.dianping.utils.CacheClient;
-import com.dianping.utils.RedisConstants;
 import com.dianping.utils.RedisData;
 import com.dianping.utils.SystemConstants;
 import org.springframework.data.geo.Distance;
@@ -24,9 +23,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import static com.dianping.utils.RedisConstants.*;
@@ -39,6 +39,9 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements IS
 
     @Resource
     private StringRedisTemplate stringRedisTemplate;
+
+    // 线程池
+    private static final ExecutorService CACHE_REBUILD_EXECUTOR = Executors.newFixedThreadPool(10);
 
     @Override
     public Result queryById(Long id) {
@@ -93,9 +96,19 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements IS
         String  lockKey = LOCK_SHOP_KEY + id;
         boolean isLock = tryLock(lockKey);
         // 6.2 判断是否获取锁成功
-        if (isLock) {
-            //todo 6.3 成功，开启独立线程，实现缓存重建
-
+        if (isLock) {  // 注意，获取锁成功后，还需要再次检查 key 是否过期，DoubleCheck
+            //6.3 成功，开启独立线程，实现缓存重建
+            CACHE_REBUILD_EXECUTOR.submit(() -> {
+                // 重建缓存
+                try {
+                    this.saveShop2Redis(id, 1800L);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                } finally {
+                    // 释放锁
+                    unlock(lockKey);
+                }
+            });
         }
 
         // 6.4 失败，返回过期的商铺信息
