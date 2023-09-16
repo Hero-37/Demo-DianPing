@@ -23,4 +23,6 @@ public class RedisConstants {
 
     public static final String SECKILL_STOCK_KEY = "seckill:stock:";
 
+    public static final String USER_SIGN_KEY = "sign:";
+
 }
