@@ -32,19 +32,19 @@ public class VoucherOrderServiceImpl extends ServiceImpl<VoucherOrderMapper, Vou
     @Transactional
     public Result seckillVoucher(Long voucherId) {
         // 1. 查询优惠券
-        SeckillVoucher vouher = seckillVoucherService.getById(voucherId);
+        SeckillVoucher voucher = seckillVoucherService.getById(voucherId);
         // 2. 判断秒杀是否开始
-        if (vouher.getBeginTime().isAfter(LocalDateTime.now())) {
+        if (voucher.getBeginTime().isAfter(LocalDateTime.now())) {
             // 尚未开始
             return  Result.fail("秒杀尚未开始!");
         }
         // 3. 判断秒杀是否已经结束
-        if (vouher.getEndTime().isBefore(LocalDateTime.now())) {
+        if (voucher.getEndTime().isBefore(LocalDateTime.now())) {
             // 尚未开始
             return  Result.fail("秒杀已经结束!");
         }
         // 4. 判断库存是否充足
-        if (vouher.getStock() < 1) {
+        if (voucher.getStock() < 1) {
             // 库存不足
             return  Result.fail("库存不足!");
         }
@@ -64,6 +64,7 @@ public class VoucherOrderServiceImpl extends ServiceImpl<VoucherOrderMapper, Vou
         voucherOrder.setId(orderId);
         // 6.2 用户id
         Long userId = UserHolder.getUser().getId();
+        voucherOrder.setUserId(userId);
         // 6.3 代金券id
         voucherOrder.setVoucherId(voucherId);
         save(voucherOrder);
