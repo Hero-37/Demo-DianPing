@@ -9,7 +9,6 @@ import com.dianping.service.ISeckillVoucherService;
 import com.dianping.service.IVoucherOrderService;
 import com.dianping.utils.RedisIdWorker;
 import com.dianping.utils.UserHolder;
-import net.bytebuddy.asm.Advice;
 import org.springframework.aop.framework.AopContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
