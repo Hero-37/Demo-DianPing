@@ -4,9 +4,7 @@ import cn.hutool.core.lang.UUID;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
-import org.springframework.data.redis.core.script.RedisScript;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
@@ -35,14 +33,14 @@ public class SimpleRedisLock implements ILock{
     }
 
     @Override
-    public boolean tryLock(long timeSec) {
+    public boolean tryLock(long timeoutSec) {
 
         // 获取线程标识
         String threadId = ID_PREFIX + Thread.currentThread().getId();
 
         // 获取锁
         Boolean success = stringRedisTemplate.opsForValue()
-                .setIfAbsent(KEY_PREFIX + name, String.valueOf(threadId), timeSec, TimeUnit.SECONDS);
+                .setIfAbsent(KEY_PREFIX + name, threadId, timeoutSec, TimeUnit.SECONDS);
 
         return Boolean.TRUE.equals(success);
     }
